@@ -1,0 +1,141 @@
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+enum EmailStatus {
+  SCHEDULED
+  PROCESSING
+  SENT
+  FAILED
+  RATE_LIMITED
+}
+
+model User {
+  id              String          @id @default(uuid())
+  email           String          @unique
+  name            String?
+  emailVerified   Boolean         @default(false)
+  image           String?         @db.Text
+  avatar          String?         @db.Text
+  
+  // Custom field: Optional because Better Auth does not write directly to googleId
+  googleId        String?
+
+  slackToken      String?         @db.Text
+  slackChannelId  String?
+  slackWebhookUrl String?         @db.Text
+
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
+
+  // Better Auth Relations
+  sessions        Session[]
+  accounts        Account[]
+
+  // Domain Relations
+  emailCampaigns  EmailCampaign[]
+  emailSenders    EmailSender[]
+
+  @@map("user")
+}
+
+model Session {
+  id        String   @id @default(uuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  token     String   @unique @db.VarChar(500)
+  expiresAt DateTime
+  ipAddress String?
+  userAgent String?  @db.Text
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([userId])
+  @@map("session")
+}
+
+model Account {
+  id                    String    @id @default(uuid())
+  userId                String
+  user                  User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  accountId             String
+  providerId            String
+  accessToken           String?   @db.Text
+  refreshToken          String?   @db.Text
+  accessTokenExpiresAt  DateTime?
+  refreshTokenExpiresAt DateTime?
+  scope                 String?   @db.Text
+  idToken               String?   @db.Text
+  password              String?   @db.Text
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
+
+  @@index([userId])
+  @@map("account")
+}
+
+model Verification {
+  id         String   @id @default(cuid())
+  identifier String
+  value      String   @db.Text
+  expiresAt  DateTime
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@map("verification")
+}
+model EmailSender {
+  id               String           @id @default(uuid())
+  userId           String
+  user             User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  smtpHost         String
+  smtpPort         Int
+  smtpUser         String
+  smtpPass         String
+  fromEmail        String           @unique
+  maxEmailsPerHour Int              @default(200)
+  scheduledEmails  ScheduledEmail[]
+  createdAt        DateTime         @default(now())
+
+  @@index([userId])
+}
+
+model EmailCampaign {
+  id              String           @id @default(uuid())
+  userId          String
+  user            User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  subject         String
+  body            String           @db.Text
+  delayBetweenMs  Int              @default(2000)
+  scheduledEmails ScheduledEmail[]
+  createdAt       DateTime         @default(now())
+
+  @@index([userId])
+}
+
+model ScheduledEmail {
+  id             String        @id @default(uuid())
+  campaignId     String?
+  campaign       EmailCampaign? @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+  senderId       String
+  sender         EmailSender   @relation(fields: [senderId], references: [id], onDelete: Cascade)
+  recipientEmail String
+  subject        String
+  body           String        @db.Text
+  scheduledAt    DateTime
+  sentAt         DateTime?
+  status         EmailStatus   @default(SCHEDULED)
+  jobId          String?       @unique
+  errorMessage   String?       @db.Text
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
+
+  @@index([scheduledAt, status])
+  @@index([senderId, status])
+  @@index([campaignId])
+}

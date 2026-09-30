@@ -1,0 +1,15 @@
+node_modules/
+.env
+.env.*
+!.env.example
+backend/node_modules/
+backend/.env
+frontend/node_modules/
+frontend/.env
+frontend/.env.local
+dist/
+.next/
+out/
+build/
+*.log
+.DS_Store

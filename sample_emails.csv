@@ -1,0 +1,6 @@
+recipientEmail,subject,body,delayBetweenMs
+user1@example.com,Welcome to ReachInbox,Hello User 1! Welcome aboard.,1000
+user2@example.com,Welcome to ReachInbox,Hello User 2! Welcome aboard.,1000
+user3@example.com,Welcome to ReachInbox,Hello User 3! Welcome aboard.,1000
+user4@example.com,Quarterly ReachInbox Update,Here is your Q3 summary.,2000
+user5@example.com,Quarterly ReachInbox Update,Here is your Q3 summary.,2000
