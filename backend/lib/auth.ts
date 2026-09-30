@@ -6,7 +6,7 @@ export const auth = betterAuth({
   baseURL: process.env.BETTER_AUTH_URL,
   secret: process.env.BETTER_AUTH_SECRET,
   
-  // ---> ADD IT RIGHT HERE <---
+  // This is what fixes the 403 Invalid Origin error:
   trustedOrigins: [
     "http://localhost:3000",
     "https://reach-in-box-ntdd-i8r7admio-prabhat-dae9.vercel.app"
@@ -14,8 +14,8 @@ export const auth = betterAuth({
   
   socialProviders: {
     google: {
-      clientId: process.env.AUTH_GOOGLE_ID,
-      clientSecret: process.env.AUTH_GOOGLE_SECRET,
+      clientId: process.env.AUTH_GOOGLE_ID!,
+      clientSecret: process.env.AUTH_GOOGLE_SECRET!,
     },
   },
 });
