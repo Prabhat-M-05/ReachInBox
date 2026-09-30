@@ -1,23 +1,21 @@
-// backend/src/auth.ts
 import { betterAuth } from "better-auth";
-import { prismaAdapter } from "better-auth/adapters/prisma";
-import { PrismaClient } from "@prisma/client";
-
-const prisma = new PrismaClient();
+import Database from "better-sqlite3"; // or your database client
 
 export const auth = betterAuth({
-  database: prismaAdapter(prisma, {
-    provider: "mysql", // or "postgresql"
-  }),
-  baseURL: "http://localhost:4000", // Express server URL
-  trustedOrigins: ["http://localhost:3000"], // Next.js app URL
-  advanced: {
-    useSecureCookies: false, // Disables HTTPS cookie requirement for localhost
-  },
+  database: new Database("./database.sqlite"), // or your DB adapter
+  baseURL: process.env.BETTER_AUTH_URL,
+  secret: process.env.BETTER_AUTH_SECRET,
+  
+  // ---> ADD IT RIGHT HERE <---
+  trustedOrigins: [
+    "http://localhost:3000",
+    "https://reach-in-box-ntdd-i8r7admio-prabhat-dae9.vercel.app"
+  ],
+  
   socialProviders: {
     google: {
-      clientId: process.env.GOOGLE_CLIENT_ID!,
-      clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
+      clientId: process.env.AUTH_GOOGLE_ID,
+      clientSecret: process.env.AUTH_GOOGLE_SECRET,
     },
   },
 });
