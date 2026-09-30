@@ -51,7 +51,7 @@ export const EmailTable: React.FC<EmailTableProps> = ({ emails, loading }) => {
     }
   };
 
-  const formatDate = (dateStr?: string | Date) => {
+ const formatDate = (dateStr?: string | Date | null) => {
     if (!dateStr) return '—';
     const date = new Date(dateStr);
     return isNaN(date.getTime()) ? '—' : date.toLocaleString();
