@@ -20,10 +20,10 @@ export default function Dashboard() {
   const [isSlackConnected, setIsSlackConnected] = useState(false);
 
   // Direct redirection to backend OAuth endpoint to avoid cross-port state generation mismatch
-  const handleGoogleSignIn = async () => {
+ const handleGoogleSignIn = async () => {
     await authClient.signIn.social({
       provider: 'google',
-      callbackURL: 'http://localhost:3000', // Return here after backend finishes OAuth
+      callbackURL: '/dashboard', // Automatically uses current domain (localhost or Vercel)
       additionalParams: { prompt: 'select_account' },
     });
   };
