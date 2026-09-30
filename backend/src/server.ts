@@ -19,7 +19,11 @@ const prisma = new PrismaClient();
 // 1. CORS Configuration (MUST allow credentials for cookies)
 app.use(
   cors({
-    origin: ['http://localhost:3000', 'http://127.0.0.1:3000'],
+    origin: [
+      'http://localhost:3000',
+      'http://127.0.0.1:3000',
+      'https://reach-in-box-ntdd-mpc3avn56-prabhat-dae9.vercel.app', // Add your exact Vercel URL here
+    ],
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization', 'Cookie'],
