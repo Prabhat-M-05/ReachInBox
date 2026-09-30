@@ -19,14 +19,14 @@ export async function hydrateQueueOnStartup() {
     const existingJob = await emailQueue.getJob(email.id);
     
     if (!existingJob) {
-      const delay = Math.max(0, new Date(email.scheduledFor).getTime() - Date.now());
+      // Fixed: changed scheduledFor to scheduledAt
+      const delay = Math.max(0, new Date(email.scheduledAt).getTime() - Date.now());
 
       await emailQueue.add(
         'dispatch-email',
         {
           scheduledEmailId: email.id,
           senderId: email.senderId,
-          userId: email.userId,
           recipientEmail: email.recipientEmail,
           subject: email.subject,
           body: email.body,
