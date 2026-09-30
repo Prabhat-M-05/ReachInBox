@@ -16,7 +16,7 @@ Port: 4000 | Queue Dashboard: http://localhost:4000/admin/queues
 ```
 cd frontend
 npm install
-cp .env.example .env        # Set NEXT_PUBLIC_API_URL=http://localhost:4000
+cp .env.local        # Set NEXT_PUBLIC_API_URL=http://localhost:4000
 npm run dev
 Port: 3000
 ```
