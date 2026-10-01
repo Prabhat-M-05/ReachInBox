@@ -8,7 +8,9 @@ export function GoogleLoginButton() {
     try {
       await authClient.signIn.social({
         provider: 'google',
-        callbackURL: 'http://localhost:3000', // Redirects to Dashboard on success
+        // 📍 Dynamic origin ensures it works on both localhost and Vercel
+        callbackURL: `${window.location.origin}/dashboard`,
+        additionalParams: { prompt: 'select_account' },
       });
     } catch (error) {
       console.error('Google sign-in failed:', error);
