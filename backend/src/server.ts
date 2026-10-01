@@ -16,22 +16,40 @@ import { initElasticsearch } from './services/elasticsearchService';
 const app = express();
 const prisma = new PrismaClient();
 
-// 1. CORS Configuration (MUST allow credentials for cookies)
+// Allowed origins list (reads process.env.FRONTEND_URL dynamically)
+const staticAllowedOrigins = [
+  'http://localhost:3000',
+  'http://127.0.0.1:3000',
+  process.env.FRONTEND_URL,
+].filter(Boolean) as string[];
+
+// 1. Dynamic CORS Configuration
 app.use(
   cors({
-    origin: [
-      'http://localhost:3000',
-      'http://127.0.0.1:3000',
-      'https://reach-in-box-ntdd-mpc3avn56-prabhat-dae9.vercel.app', // Add your exact Vercel URL here
-    ],
+    origin: (origin, callback) => {
+      // Allow non-browser or same-origin requests
+      if (!origin) return callback(null, true);
+
+      // Check exact match OR match any Vercel preview/production URL
+      const isAllowed =
+        staticAllowedOrigins.includes(origin) ||
+        /\.vercel\.app$/.test(origin);
+
+      if (isAllowed) {
+        callback(null, true);
+      } else {
+        callback(new Error(`CORS policy blocked request from origin: ${origin}`));
+      }
+    },
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization', 'Cookie'],
   })
 );
 
-// 2. Better Auth Route (MUST use standard wildcard "*")
-app.use('/api/auth', toNodeHandler(auth));
+// 2. Better Auth Catch-All Handler (MUST come before express.json body parser)
+app.all('/api/auth/*', toNodeHandler(auth));
+
 // 3. Body Parsers (MUST come AFTER Better Auth handler)
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -70,8 +88,8 @@ async function bootstrap() {
   await initElasticsearch();
 
   const server = app.listen(PORT, () => {
-    console.log(`🚀 Backend running on http://localhost:${PORT}`);
-    console.log(`📊 Queue Dashboard live at http://localhost:${PORT}/admin/queues`);
+    console.log(`🚀 Backend running on port ${PORT}`);
+    console.log(`📊 Queue Dashboard live at /admin/queues`);
   });
 
   // Graceful Shutdown Handler

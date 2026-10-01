@@ -1,17 +1,21 @@
 import { betterAuth } from "better-auth";
-import Database from "better-sqlite3"; // or your database client
+import { prismaAdapter } from "better-auth/adapters/prisma";
+import { PrismaClient } from "@prisma/client";
+
+const prisma = new PrismaClient();
 
 export const auth = betterAuth({
-  database: new Database("./database.sqlite"), // or your DB adapter
-  baseURL: process.env.BETTER_AUTH_URL,
+  database: prismaAdapter(prisma, { provider: "mysql" }),
   secret: process.env.BETTER_AUTH_SECRET,
+  baseURL: process.env.BETTER_AUTH_URL || "http://localhost:4000",
   
-  // This is what fixes the 403 Invalid Origin error:
+  // Allow all active Vercel preview links & localhost
   trustedOrigins: [
     "http://localhost:3000",
-    "https://reach-in-box-ntdd-i8r7admio-prabhat-dae9.vercel.app"
-  ],
-  
+    "https://reach-in-box-ntdd-abb2fp5do-prabhat-dae9.vercel.app", // Your current active Vercel link
+    process.env.FRONTEND_URL || "",
+  ].filter(Boolean),
+
   socialProviders: {
     google: {
       clientId: process.env.AUTH_GOOGLE_ID!,
