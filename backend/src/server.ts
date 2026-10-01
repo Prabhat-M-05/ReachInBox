@@ -48,8 +48,8 @@ app.use(
 );
 
 // 2. Better Auth Catch-All Handler (MUST come before express.json body parser)
-app.all('/api/auth', toNodeHandler(auth));
-
+// ✅ Named wildcard (*path) preserves full URL for Better Auth and satisfies Express 5
+app.all(['/api/auth', '/api/auth/*path'], toNodeHandler(auth));
 // 3. Body Parsers (MUST come AFTER Better Auth handler)
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
