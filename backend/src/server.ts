@@ -48,7 +48,7 @@ app.use(
 );
 
 // 2. Better Auth Catch-All Handler (MUST come before express.json body parser)
-app.all('/api/auth/*', toNodeHandler(auth));
+app.all('/api/auth', toNodeHandler(auth));
 
 // 3. Body Parsers (MUST come AFTER Better Auth handler)
 app.use(express.json());
@@ -85,7 +85,13 @@ app.use('/api/slack', slackRouter);
 const PORT = process.env.PORT || 4000;
 
 async function bootstrap() {
-  await initElasticsearch();
+  // Safe initialization of non-critical services
+  try {
+    await initElasticsearch();
+    console.log('✅ Elasticsearch initialized');
+  } catch (error: any) {
+    console.warn('⚠️ Elasticsearch connection failed, starting server without ES:', error.message);
+  }
 
   const server = app.listen(PORT, () => {
     console.log(`🚀 Backend running on port ${PORT}`);
